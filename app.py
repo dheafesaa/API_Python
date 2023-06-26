@@ -34,7 +34,61 @@ def create_db_connection():
 
     return connection
 
+# API endpoint for data collection
 
+
+@app.route('/api/v1/collection', methods=['GET'])
+def get_collection():
+    connection = create_db_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute("SELECT * FROM data_collection")
+        data = cursor.fetchall()
+        collection = []
+        for row in data:
+            item = {
+                'id': row[0],
+                'text_collections': row[1],
+                'text_processing': row[2]
+            }
+            collection.append(item)
+
+        return jsonify(collection)
+    except Error as e:
+        print(f"The error '{e}' occurred")
+    finally:
+        cursor.close()
+        connection.close()
+
+# API endpoint for keyword search
+
+
+@app.route('/api/v1/search', methods=['GET'])
+def search_keyword():
+    keyword = request.args.get('q')
+    connection = create_db_connection()
+    cursor = connection.cursor()
+    try:
+        query = f"SELECT * FROM data_collection WHERE text_collections LIKE '%{keyword}%'"
+        cursor.execute(query)
+        data = cursor.fetchall()
+        search_results = []
+        for row in data:
+            item = {
+                'id': row[0],
+                'text_collections': row[1],
+                'text_processing': row[2]
+            }
+            search_results.append(item)
+
+        return jsonify(search_results)
+    except Error as e:
+        print(f"The error '{e}' occurred")
+    finally:
+        cursor.close()
+        connection.close()
+
+        
 # API endpoint for file upload
 
 
